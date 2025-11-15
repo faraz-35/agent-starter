@@ -9,90 +9,316 @@ A comprehensive documentation for the production-ready Next.js starter template 
 - **Feature-Centric**: Self-contained features with clear boundaries
 - **Production Ready**: Built with scalability, maintainability, and performance in mind
 - **Type Safety**: Full TypeScript integration throughout
+- **Complete Context Containment**: Feature directories contain 100% of necessary code
+
+### 🎯 Critical Architectural Principle: Adaptive Self-Containment
+
+**This is the most important concept in our architecture:**
+
+> **Proceed with self-containment UNTIL code duplication occurs, then move ONLY the duplicated portions to parent common directories.**
+
+**The Self-Containment Rule:**
+1. **Build features with complete self-containment initially**
+2. **Identify actual code duplication as it naturally occurs**
+3. **Extract ONLY duplicated code to parent common directories**
+4. **Keep unique business logic within feature directories**
+
+**No hard percentages or artificial rules** - architecture evolves naturally based on real duplication patterns.
 
 ### Architecture Benefits for AI Agent Development
 
 **1. Complete Feature Self-Containment**
-Every feature contains all its code:
-- Components, pages, actions, hooks, types, and API routes
-- No need to navigate outside feature directories
+Every feature contains ALL its code:
+- **All components** for that feature live in the feature directory
+- **All hooks** for that feature live in the feature directory  
+- **All actions** for that feature live in the feature directory
+- **All types** for that feature live in the feature directory
+- **All API routes** for that feature live in the feature directory
+- **All constants** and **utils** for that feature live in the feature directory
+- No need to navigate outside feature directories for feature-specific code
 - Clear feature boundaries prevent cross-contamination
 
 **2. Predictable Context Engineering**
 AI agents can easily understand:
-- Where to find feature-specific code
-- How to extend existing features
-- What patterns to follow for new features
-- How APIs relate to their features
+- Where to find feature-specific code (everything is in the feature directory)
+- How to extend existing features (follow the same patterns within the feature)
+- What patterns to follow for new features (look at existing features as complete examples)
+- How APIs relate to their features (API code is in the same feature directory)
 
-**3. Proxy Pattern Benefits**
+**3. Minimal Parent Directory Usage**
+- **Root `app/common/`**: Contains ONLY truly shared utilities (UI primitives, global types, base configurations)
+- **Feature `common/` directories**: Contain ONLY shared components within that specific feature
+- **80/20 Rule**: 80% of code should be in specific feature directories, 20% in shared utilities
+- **Parent directories are configuration-only**: Layout files, route groups, and minimal shared utilities
+
+**4. Context Engineering Guarantee**
+- When providing a feature directory to an AI agent, you're providing 100% of the necessary context
+- No missing components, hooks, or logic that lives outside the feature
+- No need for agents to "guess" or "assume" where code might be located
+- Complete examples and patterns within each feature
+
+**5. Hierarchical Common Directory Strategy**
+- **Root `app/common/`**: Truly shared utilities (UI primitives, global types, base configurations)
+- **Feature `app/feature/common/`**: Shared components within that specific feature (anti-duplication)
+- **Shared components move UP only when actually duplicated across sub-features**
+
+**6. Proxy Pattern Benefits**
 - Feature APIs live in feature directories (`app/feature/api/`)
-- Minimal proxy boilerplate in `app/api/feature/`
+- Minimal proxy boilerplate in `app/api/feature/` (just import/export)
 - Type-safe import/export maintains IDE support
 - Zero runtime overhead
+- Complete API logic remains in feature directory
 
-**4. Three-Tier Data Strategy**
-- **Server Actions**: Feature-specific mutations (90% of cases)
-- **Server Components**: Initial page loads and static content
-- **React Query**: Complex caching and shared data
+**7. Three-Tier Data Strategy**
+- **Server Actions**: Feature-specific mutations (90% of cases) - live in feature `actions/`
+- **Server Components**: Initial page loads and static content - live in feature
+- **React Query**: Complex caching and shared data - feature hooks use shared utilities
 - Clear decision guidelines for each approach
 
-**5. Minimal Configuration**
+**8. Minimal Configuration**
 - Works with native Next.js routing
 - No custom middleware or rewrites
 - Leverages existing Next.js patterns
 - Reduces cognitive load for AI agents
 
 ### Directory Structure
-note no file or dir outside either 'common' or a feature folder
+**🎯 CRITICAL: No file or directory exists outside either `common` or a feature folder**
+
 ```
 ├── app/                           # Next.js App Router
-│   ├── common/                    # Shared utilities and components
-│   │   ├── components/ui/         # Reusable UI component library
-│   │   ├── components/icons/      # Icons
-│   │   ├── hooks/                 # Global custom hooks
+│   ├── common/                    # TRULY shared utilities ONLY (20% of code)
+│   │   ├── components/ui/         # Reusable UI primitives (Button, Input, etc.)
+│   │   ├── components/icons/      # Icon components
+│   │   ├── hooks/                 # GLOBAL custom hooks ONLY (useZodForm, etc.)
 │   │   ├── lib/                   # Third-party library configurations
 │   │   ├── store/                 # Zustand state management
 │   │   ├── styles/                # Global styles and theme
-│   │   ├── utils/                 # Utility functions
-│   │   ├── types/                 # Shared TypeScript types
-│   │       ├── database.ts        # Database type definitions
-│   │       └── global.ts          # Global shared types
+│   │   ├── utils/                 # UNIVERSAL utility functions ONLY
+│   │   ├── types/                 # SHARED TypeScript types ONLY
+│   │   │   ├── database.ts        # Database type definitions
+│   │   │   └── global.ts          # Global shared types
 │   │   └── layout.tsx             # Root layout (moved into common/)
-│   ├── auth/                      # Multi-page combined feature (authentication)
-│   │   ├── common/                # Shared auth utilities
-│   │   │   ├── components/        # Auth shared components
-│   │   │   ├── hooks/             # Auth-specific hooks
-│   │   │   ├── actions/           # Server Actions for auth
-│   │   │   ├── types/             # Auth TypeScript types
-│   │   │   └── layout.tsx         # Auth feature layout k
-│   │   ├── login/                 # Login sub-feature
-│   │   │   └── page.tsx           # /auth/login
-│   │   │   ├── components/        # Auth shared components
-│   │   │   ├── hooks/             # Auth-specific hooks
-│   │   │   ├── actions/           # Server Actions for auth
-│   │   │   ├── types/             # Auth TypeScript types
-│   │   ├── register/              # Register sub-feature
-│   │   │   └── page.tsx           # /auth/register
-│   │   │   ├── components/        # Auth shared components
-│   │   │   ├── hooks/             # Auth-specific hooks
-│   │   │   ├── actions/           # Server Actions for auth
-│   │   │   ├── types/             # Auth TypeScript types
-│   ├── dashboard/                 # Multi-page combined feature
-│   │   ├── (common)/              # Route group - no URL segment
-│   │   │   ├── layout.tsx         # Dashboard layout
-│   │   │   ├── components/        # Dashboard shared components
-│   │   │   └── hooks/             # Dashboard-specific hooks
+│   │   
+│   ├── auth/                      # Multi-page authentication feature
+│   │   ├── common/                # Shared components ONLY when duplicated across login/register
+│   │   │   ├── components/        # Shared auth components (forms, fields, social login)
+│   │   │   ├── hooks/             # Shared auth hooks (form management, validation)
+│   │   │   ├── utils/             # Shared auth utilities (email, password validation)
+│   │   │   └── layout.tsx         # Auth feature layout
+│   │   │   └── types.ts           # Auth-specific shared types
+│   │   ├── login/                 # Login sub-feature (unique business logic)
+│   │   │   ├── page.tsx           # /auth/login
+│   │   │   ├── components/        # Login-specific components (with shared auth/common imports)
+│   │   │   │   ├── login-form.tsx # Login form (uses shared components + unique logic)
+│   │   │   │   └── index.ts       # Component exports
+│   │   │   ├── hooks/             # Login-specific hooks
+│   │   │   │   ├── use-login.tsx  # Login authentication logic
+│   │   │   │   └── index.ts       # Hook exports
+│   │   │   ├── actions/           # Login-specific server actions
+│   │   │   │   └── index.ts       # Login actions
+│   │   │   ├── types/             # Login-specific types
+│   │   │   │   └── index.ts       # Login types
+│   │   │   ├── constants/         # Login-specific constants
+│   │   │   │   └── index.ts       # Login constants
+│   │   │   └── utils/             # Login-specific utilities (minimal)
+│   │   │       └── index.ts       # Login utilities
+│   │   │       
+│   │   └── register/              # Register sub-feature (unique business logic)
+│   │   │   ├── page.tsx           # /auth/register
+│   │   │   ├── components/        # Register-specific components (with shared auth/common imports)
+│   │   │   │   ├── register-form.tsx # Registration form (uses shared components + unique logic)
+│   │   │   │   └── index.ts       # Component exports
+│   │   │   ├── hooks/             # Register-specific hooks
+│   │   │   │   ├── use-register.tsx # Registration logic
+│   │   │   │   └── index.ts       # Hook exports
+│   │   │   ├── actions/           # Register-specific server actions
+│   │   │   │   └── index.ts       # Registration actions
+│   │   │   ├── types/             # Register-specific types
+│   │   │   │   └── index.ts       # Registration types
+│   │   │   ├── constants/         # Register-specific constants
+│   │   │   │   └── index.ts       # Registration constants
+│   │   │   └── utils/             # Register-specific utilities (minimal)
+│   │   │       └── index.ts       # Registration utilities
+│   │   ├── login/                 # Login sub-feature (100% self-contained)
+│   │   │   ├── page.tsx           # /auth/login
+│   │   │   ├── components/        # ALL login-specific components
+│   │   │   │   ├── login-form.tsx # Main login form component
+│   │   │   │   ├── social-login.tsx # Social login options
+│   │   │   │   └── index.ts       # Component exports
+│   │   │   ├── hooks/             # ALL login-specific hooks
+│   │   │   │   ├── use-login.tsx  # Login logic and state
+│   │   │   │   ├── use-login-form.tsx # Login form handling
+│   │   │   │   └── index.ts       # Hook exports
+│   │   │   ├── actions/           # ALL login-specific server actions
+│   │   │   │   ├── login-action.ts # Login server action
+│   │   │   │   ├── social-login-action.ts # Social login action
+│   │   │   │   └── index.ts       # Action exports
+│   │   │   ├── types/             # ALL login-specific types
+│   │   │   │   ├── login.types.ts # Login-specific type definitions
+│   │   │   │   └── index.ts       # Type exports
+│   │   │   ├── constants/         # ALL login-specific constants
+│   │   │   │   ├── login.constants.ts # Login URLs, messages, etc.
+│   │   │   │   └── index.ts       # Constant exports
+│   │   │   └── utils/             # ALL login-specific utilities
+│   │   │       ├── login.utils.ts # Login validation, formatting, etc.
+│   │   │       └── index.ts       # Utility exports
+│   │   │       
+│   │   ├── register/              # Register sub-feature (100% self-contained)
+│   │   │   ├── page.tsx           # /auth/register
+│   │   │   ├── components/        # ALL register-specific components
+│   │   │   │   ├── register-form.tsx # Main registration form
+│   │   │   │   ├── password-strength.tsx # Password strength indicator
+│   │   │   │   └── index.ts       # Component exports
+│   │   │   ├── hooks/             # ALL register-specific hooks
+│   │   │   │   ├── use-register.tsx # Registration logic
+│   │   │   │   ├── use-password-strength.tsx # Password validation
+│   │   │   │   └── index.ts       # Hook exports
+│   │   │   ├── actions/           # ALL register-specific server actions
+│   │   │   │   ├── register-action.ts # Registration server action
+│   │   │   │   └── index.ts       # Action exports
+│   │   │   ├── types/             # ALL register-specific types
+│   │   │   │   ├── register.types.ts # Registration-specific types
+│   │   │   │   └── index.ts       # Type exports
+│   │   │   └── constants/         # ALL register-specific constants
+│   │   │       └── index.ts       # Constant exports
+│   │   │       
+│   │   └── api/                   # Auth feature API routes (100% self-contained)
+│   │       ├── route.ts           # Main auth API logic
+│   │       ├── middleware/        # Auth API middleware
+│   │       ├── handlers/          # Auth API business logic
+│   │       └── types.ts           # Auth API types
+│   │       
+│   ├── dashboard/                 # Multi-page dashboard feature (100% self-contained)
+│   │   ├── (common)/              # MINIMAL shared components WITHIN dashboard only
+│   │   │   ├── layout.tsx         # Dashboard layout ONLY
+│   │   │   ├── components/        # Dashboard shared components ONLY
+│   │   │   │   ├── navigation.tsx # Dashboard navigation
+│   │   │   │   └── sidebar.tsx   # Dashboard sidebar
+│   │   │   ├── hooks/             # Dashboard shared hooks ONLY
+│   │   │   │   ├── use-dashboard-layout.tsx # Layout logic
+│   │   │   │   └── index.ts       # Hook exports
+│   │   │   └── types/             # Dashboard shared types ONLY
+│   │   │       └── index.ts       # Type exports
+│   │   │       
 │   │   ├── (root)/                # Route group - no URL segment
 │   │   │   └── page.tsx           # /dashboard (main page)
-│   │   ├── settings/              # Sub-feature
-│   │   │   └── page.tsx           # /dashboard/settings
-│   ├── (home)/                    # Home Page
-│   │   ├── components/            # Home components
-│   │   ├── page.tsx               # / (main page)
-│   │   └── layout.tsx             # Optional home layout
+│   │   ├── settings/              # Settings sub-feature (100% self-contained)
+│   │   │   ├── page.tsx           # /dashboard/settings
+│   │   │   ├── components/        # ALL settings-specific components
+│   │   │   ├── hooks/             # ALL settings-specific hooks
+│   │   │   ├── actions/           # ALL settings-specific server actions
+│   │   │   ├── types/             # ALL settings-specific types
+│   │   │   └── api/               # Settings API routes
+│   │   │       └── route.ts       # Settings API logic
+│   │   │       
+│   │   └── api/                   # Dashboard feature API routes (100% self-contained)
+│   │       ├── route.ts           # Main dashboard API logic
+│   │       ├── handlers/          # Dashboard API handlers
+│   │       └── types.ts           # Dashboard API types
+│   │       
+│   └── api/                       # API proxy routes (MINIMAL - just import/export)
+│       ├── auth/
+│       │   └── route.ts           // export * from '@/auth/api/route'
+│       └── dashboard/
+│           └── route.ts           // export * from '@/dashboard/api/route'
+│           
 └── public/                        # Static assets
 ```
+
+### 🎯 Adaptive Self-Containment Rules
+
+**1. Build with Self-Containment First**
+- Start each feature completely self-contained
+- Keep all business logic within feature directories
+- Don't pre-emptively create shared components
+- Let duplication emerge naturally
+
+**2. Extract Only When Duplication Occurs**
+- Move ACTUALLY duplicated code to `feature/common/` directories
+- Keep unique business logic within sub-feature directories
+- Don't abstract based on potential future duplication
+- Each extraction should solve a real duplication problem
+
+**3. Context Engineering Guarantee**
+- When you give an AI agent the `app/auth/` directory, it has 100% of auth context
+- Feature common directories contain only what was actually duplicated
+- No missing components, hooks, or logic that lives outside the feature
+- Complete examples and patterns within each feature boundary
+
+**4. Hierarchical Import Pattern**
+- Feature imports from `@/common/*` for TRULY shared utilities only
+- Feature imports from `../common/` for feature-specific shared components
+- Sub-feature imports from `../../common/` for feature-level shared components
+- NO feature imports from other feature directories (use shared utilities instead)
+
+**5. Business Logic vs Presentation Logic**
+- Business logic ALWAYS stays in the feature directory
+- Presentation logic MAY move to feature common when duplicated
+- Server actions ALWAYS stay in the feature directory
+- UI components MAY move to feature common when duplicated
+
+### 🔧 Practical Implementation Workflow
+
+**Step 1: Build Features Self-Contained**
+```
+app/auth/login/
+├── components/login-form.tsx      # Complete login form with all logic
+├── hooks/use-login.tsx           # Complete login hooks
+└── actions/login-action.ts       # Complete login server actions
+```
+
+**Step 2: Identify Duplication**
+- Build register feature independently
+- Notice `login-form.tsx` and `register-form.tsx` share similar structure
+- Identify auth field patterns, validation, social login components
+
+**Step 3: Extract to Feature Common**
+```
+app/auth/common/
+├── components/
+│   ├── auth-form-field.tsx       # Extracted form field pattern
+│   ├── auth-card.tsx            # Extracted card styling
+│   └── social-login-buttons.tsx # Extracted social login UI
+├── hooks/use-auth-form.tsx      # Extracted form state management
+└── utils/auth-utils.ts          # Extracted validation utilities
+```
+
+**Step 4: Refactor to Use Shared Components**
+```
+app/auth/login/components/login-form.tsx
+import { AuthFormField, AuthCard } from '../../common/components'
+import { useAuthForm } from '../../common/hooks'
+// + login-specific business logic
+```
+
+### 📋 Anti-Duplication Decision Tree
+
+**When to Extract to `feature/common/`:**
+✅ Same UI pattern used in 2+ sub-features  
+✅ Same validation logic needed across sub-features  
+✅ Same form state management patterns  
+✅ Same styling and layout patterns  
+
+**When to Keep in Feature Directory:**
+❌ Feature-specific business logic  
+❌ Unique server actions  
+❌ Feature-specific error handling  
+❌ Feature-specific configuration  
+❌ Single-use components  
+
+### 🎯 Real-World Examples
+
+**Extracted to `app/auth/common/`:**
+- `AuthFormField`: Used by login, register, forgot password
+- `SocialLoginButtons`: Used by login and register
+- `useAuthForm`: Shared form state management pattern
+- `isValidEmail`: Common validation utility
+
+**Kept in Feature Directories:**
+- `loginAction`: Login-specific authentication logic
+- `useLogin`: Login-specific business logic hooks
+- `LOGIN_REDIRECTS`: Login-specific configuration
+- Remember me functionality: Login-specific feature
 
 ## 🛠️ Technology Stack
 

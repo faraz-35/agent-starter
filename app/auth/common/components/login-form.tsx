@@ -1,55 +1,63 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input } from '@/common/components/ui'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/common/components/ui'
-import { useZodForm } from '@/common/hooks/use-zod-form'
-import { loginUser } from '@/app/features/auth/actions/auth-actions'
-import { loginSchema } from '@/common/lib/schemas'
-import type { LoginInput } from '@/common/lib/schemas'
-import { cn } from '@/common/utils/cn'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Input } from "@/common/components/ui";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/common/components/ui";
+import { useZodForm } from "@/common/hooks/use-zod-form";
+import { loginUser } from "../actions/auth-actions";
+import { loginSchema } from "@/common/lib/schemas";
+import type { LoginInput } from "@/common/lib/schemas";
+import { cn } from "@/common/utils/cn";
 
 interface LoginFormProps {
-  className?: string
+  className?: string;
 }
 
 /**
  * Login form component with validation and error handling
  */
 export function LoginForm({ className }: LoginFormProps) {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useZodForm(loginSchema, {
-    email: '',
-    password: '',
-  })
+    email: "",
+    password: "",
+  });
 
   const onSubmit = async (data: LoginInput) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const result = await loginUser(data)
+      const result = await loginUser(data);
 
       if (result.data?.success) {
-        router.push('/dashboard')
+        router.push("/dashboard");
       } else {
-        setError(result.serverError || 'Login failed')
+        setError(result.serverError || "Login failed");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred",
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <Card className={cn('w-full max-w-md mx-auto', className)}>
+    <Card className={cn("w-full max-w-md mx-auto", className)}>
       <CardHeader>
         <CardTitle>Sign In</CardTitle>
         <CardDescription>
@@ -69,7 +77,7 @@ export function LoginForm({ className }: LoginFormProps) {
               id="email"
               type="email"
               placeholder="Enter your email"
-              {...form.register('email')}
+              {...form.register("email")}
               disabled={isLoading}
             />
             {form.formState.errors.email && (
@@ -90,7 +98,7 @@ export function LoginForm({ className }: LoginFormProps) {
               id="password"
               type="password"
               placeholder="Enter your password"
-              {...form.register('password')}
+              {...form.register("password")}
               disabled={isLoading}
             />
             {form.formState.errors.password && (
@@ -100,19 +108,13 @@ export function LoginForm({ className }: LoginFormProps) {
             )}
           </div>
 
-          {error && (
-            <p className="text-sm text-destructive">{error}</p>
-          )}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }
