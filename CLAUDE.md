@@ -46,7 +46,7 @@ AI agents can easily understand:
 - How APIs relate to their features (API code is in the same feature directory)
 
 **3. Minimal Parent Directory Usage**
-- **Root `app/common/`**: Contains ONLY truly shared utilities (UI primitives, global types, base configurations)
+- **Root `app/(common)/`**: Contains ONLY truly shared utilities (UI primitives, global types, base configurations)
 - **Feature `common/` directories**: Contain ONLY shared components within that specific feature
 - **80/20 Rule**: 80% of code should be in specific feature directories, 20% in shared utilities
 - **Parent directories are configuration-only**: Layout files, route groups, and minimal shared utilities
@@ -58,8 +58,8 @@ AI agents can easily understand:
 - Complete examples and patterns within each feature
 
 **5. Hierarchical Common Directory Strategy**
-- **Root `app/common/`**: Truly shared utilities (UI primitives, global types, base configurations)
-- **Feature `app/feature/common/`**: Shared components within that specific feature (anti-duplication)
+- **Root `app/(common)/`**: Truly shared utilities (UI primitives, global types, base configurations)
+- **Feature `app/feature/(common)/`**: Shared components within that specific feature (anti-duplication)
 - **Shared components move UP only when actually duplicated across sub-features**
 
 **6. Proxy Pattern Benefits**
@@ -68,6 +68,7 @@ AI agents can easily understand:
 - Type-safe import/export maintains IDE support
 - Zero runtime overhead
 - Complete API logic remains in feature directory
+- **Layout Proxy Pattern**: Root layout exports from `@/(common)/layout` to maintain architecture while respecting Next.js requirements
 
 **7. Three-Tier Data Strategy**
 - **Server Actions**: Feature-specific mutations (90% of cases) - live in feature `actions/`
@@ -86,7 +87,7 @@ AI agents can easily understand:
 
 ```
 ├── app/                           # Next.js App Router
-│   ├── common/                    # TRULY shared utilities ONLY (20% of code)
+│   ├── (common)/                  # TRULY shared utilities ONLY (20% of code) 
 │   │   ├── components/ui/         # Reusable UI primitives (Button, Input, etc.)
 │   │   ├── components/icons/      # Icon components
 │   │   ├── hooks/                 # GLOBAL custom hooks ONLY (useZodForm, etc.)
@@ -97,10 +98,10 @@ AI agents can easily understand:
 │   │   ├── types/                 # SHARED TypeScript types ONLY
 │   │   │   ├── database.ts        # Database type definitions
 │   │   │   └── global.ts          # Global shared types
-│   │   └── layout.tsx             # Root layout (moved into common/)
+│   │   └── layout.tsx             # Root layout implementation (exported to app/layout.tsx)
 │   │   
 │   ├── auth/                      # Multi-page authentication feature
-│   │   ├── common/                # Shared components ONLY when duplicated across login/register
+│   │   ├── (common)/                # Shared components ONLY when duplicated across login/register
 │   │   │   ├── components/        # Shared auth components (forms, fields, social login)
 │   │   │   ├── hooks/             # Shared auth hooks (form management, validation)
 │   │   │   ├── utils/             # Shared auth utilities (email, password validation)
@@ -138,50 +139,7 @@ AI agents can easily understand:
 │   │   │   ├── constants/         # Register-specific constants
 │   │   │   │   └── index.ts       # Registration constants
 │   │   │   └── utils/             # Register-specific utilities (minimal)
-│   │   │       └── index.ts       # Registration utilities
-│   │   ├── login/                 # Login sub-feature (100% self-contained)
-│   │   │   ├── page.tsx           # /auth/login
-│   │   │   ├── components/        # ALL login-specific components
-│   │   │   │   ├── login-form.tsx # Main login form component
-│   │   │   │   ├── social-login.tsx # Social login options
-│   │   │   │   └── index.ts       # Component exports
-│   │   │   ├── hooks/             # ALL login-specific hooks
-│   │   │   │   ├── use-login.tsx  # Login logic and state
-│   │   │   │   ├── use-login-form.tsx # Login form handling
-│   │   │   │   └── index.ts       # Hook exports
-│   │   │   ├── actions/           # ALL login-specific server actions
-│   │   │   │   ├── login-action.ts # Login server action
-│   │   │   │   ├── social-login-action.ts # Social login action
-│   │   │   │   └── index.ts       # Action exports
-│   │   │   ├── types/             # ALL login-specific types
-│   │   │   │   ├── login.types.ts # Login-specific type definitions
-│   │   │   │   └── index.ts       # Type exports
-│   │   │   ├── constants/         # ALL login-specific constants
-│   │   │   │   ├── login.constants.ts # Login URLs, messages, etc.
-│   │   │   │   └── index.ts       # Constant exports
-│   │   │   └── utils/             # ALL login-specific utilities
-│   │   │       ├── login.utils.ts # Login validation, formatting, etc.
-│   │   │       └── index.ts       # Utility exports
-│   │   │       
-│   │   ├── register/              # Register sub-feature (100% self-contained)
-│   │   │   ├── page.tsx           # /auth/register
-│   │   │   ├── components/        # ALL register-specific components
-│   │   │   │   ├── register-form.tsx # Main registration form
-│   │   │   │   ├── password-strength.tsx # Password strength indicator
-│   │   │   │   └── index.ts       # Component exports
-│   │   │   ├── hooks/             # ALL register-specific hooks
-│   │   │   │   ├── use-register.tsx # Registration logic
-│   │   │   │   ├── use-password-strength.tsx # Password validation
-│   │   │   │   └── index.ts       # Hook exports
-│   │   │   ├── actions/           # ALL register-specific server actions
-│   │   │   │   ├── register-action.ts # Registration server action
-│   │   │   │   └── index.ts       # Action exports
-│   │   │   ├── types/             # ALL register-specific types
-│   │   │   │   ├── register.types.ts # Registration-specific types
-│   │   │   │   └── index.ts       # Type exports
-│   │   │   └── constants/         # ALL register-specific constants
-│   │   │       └── index.ts       # Constant exports
-│   │   │       
+│   │   │       └── index.ts       # Registration utilities  │   │       
 │   │   └── api/                   # Auth feature API routes (100% self-contained)
 │   │       ├── route.ts           # Main auth API logic
 │   │       ├── middleware/        # Auth API middleware
@@ -209,12 +167,7 @@ AI agents can easily understand:
 │   │   │   ├── actions/           # ALL settings-specific server actions
 │   │   │   ├── types/             # ALL settings-specific types
 │   │   │   └── api/               # Settings API routes
-│   │   │       └── route.ts       # Settings API logic
-│   │   │       
-│   │   └── api/                   # Dashboard feature API routes (100% self-contained)
-│   │       ├── route.ts           # Main dashboard API logic
-│   │       ├── handlers/          # Dashboard API handlers
-│   │       └── types.ts           # Dashboard API types
+│   │   │       └── route.ts       # Settings API logic (to be imported by /app/api/settings)
 │   │       
 │   └── api/                       # API proxy routes (MINIMAL - just import/export)
 │       ├── auth/
@@ -222,6 +175,7 @@ AI agents can easily understand:
 │       └── dashboard/
 │           └── route.ts           // export * from '@/dashboard/api/route'
 │           
+├── layout.tsx                     # Root layout proxy (exports from @/(common)/layout)
 └── public/                        # Static assets
 ```
 
@@ -231,84 +185,17 @@ AI agents can easily understand:
 - Start each feature completely self-contained
 - Keep all business logic within feature directories
 - Don't pre-emptively create shared components
-- Let duplication emerge naturally
 
 **2. Extract Only When Duplication Occurs**
-- Move ACTUALLY duplicated code to `feature/common/` directories
+- Move ACTUALLY duplicated code to `feature/(common)/` directories
 - Keep unique business logic within sub-feature directories
-- Don't abstract based on potential future duplication
-- Each extraction should solve a real duplication problem
 
-**3. Context Engineering Guarantee**
-- When you give an AI agent the `app/auth/` directory, it has 100% of auth context
-- Feature common directories contain only what was actually duplicated
-- No missing components, hooks, or logic that lives outside the feature
-- Complete examples and patterns within each feature boundary
 
-**4. Hierarchical Import Pattern**
-- Feature imports from `@/common/*` for TRULY shared utilities only
-- Feature imports from `../common/` for feature-specific shared components
-- Sub-feature imports from `../../common/` for feature-level shared components
-- NO feature imports from other feature directories (use shared utilities instead)
 
-**5. Business Logic vs Presentation Logic**
-- Business logic ALWAYS stays in the feature directory
-- Presentation logic MAY move to feature common when duplicated
-- Server actions ALWAYS stay in the feature directory
-- UI components MAY move to feature common when duplicated
-
-### 🔧 Practical Implementation Workflow
-
-**Step 1: Build Features Self-Contained**
-```
-app/auth/login/
-├── components/login-form.tsx      # Complete login form with all logic
-├── hooks/use-login.tsx           # Complete login hooks
-└── actions/login-action.ts       # Complete login server actions
-```
-
-**Step 2: Identify Duplication**
-- Build register feature independently
-- Notice `login-form.tsx` and `register-form.tsx` share similar structure
-- Identify auth field patterns, validation, social login components
-
-**Step 3: Extract to Feature Common**
-```
-app/auth/common/
-├── components/
-│   ├── auth-form-field.tsx       # Extracted form field pattern
-│   ├── auth-card.tsx            # Extracted card styling
-│   └── social-login-buttons.tsx # Extracted social login UI
-├── hooks/use-auth-form.tsx      # Extracted form state management
-└── utils/auth-utils.ts          # Extracted validation utilities
-```
-
-**Step 4: Refactor to Use Shared Components**
-```
-app/auth/login/components/login-form.tsx
-import { AuthFormField, AuthCard } from '../../common/components'
-import { useAuthForm } from '../../common/hooks'
-// + login-specific business logic
-```
-
-### 📋 Anti-Duplication Decision Tree
-
-**When to Extract to `feature/common/`:**
-✅ Same UI pattern used in 2+ sub-features  
-✅ Same validation logic needed across sub-features  
-✅ Same form state management patterns  
-✅ Same styling and layout patterns  
-
-**When to Keep in Feature Directory:**
-❌ Feature-specific business logic  
-❌ Unique server actions  
-❌ Feature-specific error handling  
-❌ Feature-specific configuration  
-❌ Single-use components  
 
 ### 🎯 Real-World Examples
 
-**Extracted to `app/auth/common/`:**
+**Extracted to `app/auth/(common)/`:**
 - `AuthFormField`: Used by login, register, forgot password
 - `SocialLoginButtons`: Used by login and register
 - `useAuthForm`: Shared form state management pattern
@@ -350,48 +237,16 @@ import { useAuthForm } from '../../common/hooks'
 - **TypeScript**: Static type checking
 - **PostCSS**: CSS processing
 
-## 📁 Feature Architecture Patterns
+## 📁 Actions vs Hooks
 
-### Single-Page Features
-Structure for features with only one main page:
-
-```
-app/feature_name/
-├── page.tsx           # Main route (/feature_name)
-├── layout.tsx         # Feature-specific layout (optional)
-├── components/        # Feature components
-├── actions/           # Server Actions
-├── hooks/             # Feature hooks
-├── types/             # Feature types
-└── constants/         # Feature constants
-```
-
-Notes:
 - actions/ should expose server actions implemented and invoked via the Safe Action Client (type-safe, validated server calls).
 - hooks/ should contain the feature's React Query (TanStack Query) logic — queries and mutations (e.g. useFeatureQuery, useCreateFeatureMutation) — and wrap or compose shared hooks as needed to provide a consistent client-side API for data fetching, caching, and optimistic updates.
 
-### Multi-Page Combined Features
-```
-app/combined_feature/
-├── (common)/          # Route group - no URL segment
-│   ├── layout.tsx     # Layout for all sub-features
-│   ├── components/    # Shared components
-│   ├── hooks/         # Shared hooks
-│   └── utils/         # Shared utilities
-├── (root)/            # Route group - no URL segment
-│   └── page.tsx       # Main route (/combined_feature)
-├── sub_feature_1/
-│   ├── page.tsx       # /combined_feature/sub_feature_1
-│   └── components/    # Sub-feature specific components
-└── sub_feature_2/
-    ├── page.tsx       # /combined_feature/sub_feature_2
-    └── components/    # Sub-feature specific components
-```
 
 ## 🎨 Styling & UI System
 
 ### Tailwind CSS v4 Configuration
-Theme configuration is in `app/common/styles/globals.css`:
+Theme configuration is in `app/(common)/styles/globals.css`:
 
 ```css
 @import "tailwindcss";
@@ -408,14 +263,14 @@ Theme configuration is in `app/common/styles/globals.css`:
 ```
 
 ### Component Library
-All UI components are in `app/common/components/ui/`:
+All UI components are in `app/(common)/components/ui/`:
 - Consistent design system
 - Full TypeScript support
 - Accessibility first (Radix UI)
 - Dark mode support
 
 ### Custom Hooks
-Common hooks in `app/common/hooks/`:
+Common hooks in `app/(common)/hooks/`:
 - `useZodForm`: Form handling with React Hook Form + Zod
 - `useAuth`: Authentication state management
 - Additional utility hooks
@@ -423,18 +278,9 @@ Common hooks in `app/common/hooks/`:
 ## 🔄 State Management
 
 ### Zustand Stores
-Global state is managed with Zustand in `app/common/store/`:
+Global state is managed with Zustand in `app/(common)/store/`:
 
-```typescript
-interface AuthState {
-  user: User | null
-  isLoading: boolean
-  isAuthenticated: boolean
-  setUser: (user: User | null) => void
-  setLoading: (loading: boolean) => void
-  logout: () => void
-}
-```
+
 
 ### Server State
 - Server Actions with enhanced `safe-action-client`
@@ -448,14 +294,14 @@ interface AuthState {
 Use the `useZodForm` hook for consistent form handling:
 
 ```typescript
-import { useZodForm } from '@/common/hooks/use-zod-form'
-import { mySchema } from '@/common/lib/schemas'
+import { useZodForm } from '@/(common)/hooks/use-zod-form'
+import { mySchema } from '@/(common)/lib/schemas'
 
 const form = useZodForm(mySchema, defaultValues)
 ```
 
 ### Validation Schemas
-All validation schemas are in `app/common/lib/schemas.ts` using Zod:
+All validation schemas are in `app/(common)/lib/schemas.ts` using Zod:
 
 ```typescript
 export const loginSchema = z.object({
@@ -470,7 +316,7 @@ Enhanced safe actions with authentication support in feature `actions/` director
 
 #### Public Actions
 ```typescript
-import { publicAction } from '@/common/lib/safe-action'
+import { publicAction } from '@/(common)/lib/safe-action'
 
 export const publicAction = publicAction(mySchema, async (data) => {
   // Public server-side logic with automatic validation
@@ -479,7 +325,7 @@ export const publicAction = publicAction(mySchema, async (data) => {
 
 #### Authenticated Actions
 ```typescript
-import { authAction } from '@/common/lib/safe-action'
+import { authAction } from '@/(common)/lib/safe-action'
 
 export const authenticatedAction = authAction(mySchema, async (data, ctx) => {
   const { supabase, authUser } = ctx
@@ -541,7 +387,7 @@ export function CreateUserForm() {
 
 ```typescript
 // In a Server Component
-import { createSupabaseServerClient } from '@/common/lib/supabase-server'
+import { createSupabaseServerClient } from '@/(common)/lib/supabase-server'
 
 export default async function DashboardPage() {
   const supabase = createSupabaseServerClient()
@@ -559,8 +405,8 @@ export default async function DashboardPage() {
 ```typescript
 // In a Client Component
 import { useQuery } from '@tanstack/react-query'
-import { authQuery } from '@/common/hooks/auth-query'
-import { QueryKeys } from '@/common/lib/query-keys'
+import { authQuery } from '@/(common)/hooks/auth-query'
+import { QueryKeys } from '@/(common)/lib/query-keys'
 
 export function useProfile() {
   return useQuery({
@@ -602,7 +448,7 @@ export function useProfile() {
 Use centralized enum for consistent cache management:
 
 ```typescript
-// app/common/lib/query-keys.ts
+// app/(common)/lib/query-keys.ts
 export enum QueryKeys {
   // User-related
   PROFILE = 'profile',
@@ -640,7 +486,7 @@ queryClient.invalidateQueries({
 Centralizes authentication and validation for client-side queries:
 
 ```typescript
-// app/common/hooks/auth-query.ts
+// app/(common)/hooks/auth-query.ts
 export function authQuery<TParams, TResult>(
   queryFn: (params: { supabase: SupabaseClient; user: User; params: TParams }) => Promise<TResult>,
   options?: {
@@ -749,9 +595,9 @@ export function ProfileForm() {
    - Keep features self-contained
 
 3. **Use Shared Utilities**:
-   - Import from `@/common/components/ui` for UI components
-   - Import from `@/common/utils` for utility functions
-   - Import from `@/common/hooks` for shared hooks
+   - Import from `@/(common)/components/ui` for UI components
+   - Import from `@/(common)/utils` for utility functions
+   - Import from `@/(common)/hooks` for shared hooks
 
 ### Code Organization Principles
 
@@ -766,7 +612,7 @@ export function ProfileForm() {
    - Maintain strict TypeScript configuration
 
 3. **Component Design**:
-   - Build reusable components in `app/common/components/ui/`
+   - Build reusable components in `app/(common)/components/ui/`
    - Feature-specific components in feature directories
    - Follow consistent naming conventions
 
@@ -774,19 +620,19 @@ export function ProfileForm() {
 
 ```typescript
 // UI Components
-import { Button, Input } from '@/common/components/ui'
+import { Button, Input } from '@/(common)/components/ui'
 
 // Feature Components
 import { LoginForm } from './components/login-form'
 
 // Shared Hooks
-import { useZodForm } from '@/common/hooks/use-zod-form'
+import { useZodForm } from '@/(common)/hooks/use-zod-form'
 
 // Feature Hooks
 import { useAuth } from '@/auth/hooks/use-auth'
 
 // Utilities
-import { formatDate } from '@/common/utils/helpers'
+import { formatDate } from '@/(common)/utils/helpers'
 
 // Types
 import type { User } from '@/types/database'
@@ -842,167 +688,41 @@ Custom API routes are used for:
 
 **Primary Approach**: Use Server Actions for feature-specific operations and limit API routes to shared/external concerns.
 
-#### **Feature-Contained API Architecture**
+### Layout Proxy Pattern
 
-We use a proxy pattern that maintains feature self-containment while working with Next.js routing:
+The root layout follows the same export/import pattern as API routes to maintain architecture integrity:
 
-**Feature Directory Structure**:
-```
-app/user-management/
-├── page.tsx                   # Main page (/user-management)
-├── components/                # Feature components
-├── actions/                   # Server Actions (primary approach)
-├── hooks/                     # Feature hooks
-├── types/                     # Feature types
-└── api/                       # Feature-specific API routes
-    ├── route.ts               # API logic for /api/user-management
-    ├── [id]/
-    │   └── route.ts           # API logic for /api/user-management/[id]
-    ├── handlers/              # Business logic handlers
-    │   ├── get-users.ts
-    │   ├── create-user.ts
-    │   └── update-user.ts
-    ├── middleware/            # Feature-specific middleware
-    │   └── validation.ts
-    ├── types.ts              # API-specific types
-    └── utils.ts              # API utilities
-```
-
-**API Route Directory Structure**:
-```
-app/api/
-├── user-management/
-│   └── route.ts               # Simple import/export proxy
-├── dashboard/
-│   └── route.ts               # Simple import/export proxy
-├── webhooks/                  # Global webhooks (shared)
-│   ├── stripe/
-│   │   └── route.ts
-│   └── github/
-│       └── route.ts
-└── (common)/                  # Shared API utilities
-    ├── middleware.ts          # Common middleware
-    ├── handlers.ts            # Common handlers
-    ├── types.ts               # Shared API types
-    └── route-proxy.ts         # Route proxy utilities
-```
-
-#### **Feature API Implementation Pattern**
-
-**Feature API Route** (Complete logic lives in feature):
 ```typescript
-// app/user-management/api/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { authMiddleware } from '@/api/(common)/middleware'
-import { handleApiError } from '@/api/(common)/handlers'
-import { createApiResponse } from '@/api/(common)/handlers'
-import { userSchemas } from './types'
+// app/layout.tsx (Next.js requirement - minimal proxy)
+export { default } from '@/(common)/layout'
 
-export async function GET(request: NextRequest) {
-  try {
-    const { user } = await authMiddleware(request)
-    
-    // Business logic for getting users
-    const users = await getUsersForOrganization(user.organization_id)
-    
-    return createApiResponse(users)
-  } catch (error) {
-    return handleApiError(error)
-  }
-}
+// app/(common)/layout.tsx (all real layout logic)
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "@/(common)/styles/globals.css";
 
-export async function POST(request: NextRequest) {
-  try {
-    const { user } = await authMiddleware(request)
-    const body = await request.json()
-    
-    // Validate input using feature schema
-    const validatedData = userSchemas.create.parse(body)
-    
-    // Business logic for creating user
-    const newUser = await createUser(validatedData, user.organization_id)
-    
-    return createApiResponse(newUser, 201)
-  } catch (error) {
-    return handleApiError(error)
-  }
+const geistSans = Geist({...});
+const geistMono = Geist_Mono({...});
+
+export const metadata: Metadata = {...};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {children}
+      </body>
+    </html>
+  );
 }
 ```
 
-**API Route Proxy** (Minimal boilerplate):
-```typescript
-// app/api/user-management/route.ts
-export { GET, POST } from '@/user-management/api/route'
-```
+This pattern maintains your architecture principle while respecting Next.js requirements:
+- **Single Exception**: Only `app/layout.tsx` exists outside the structure, but it's just a proxy
+- **Real Logic in Common**: All meaningful layout logic lives in `app/(common)/layout.tsx`
+- **Server Component Benefits**: Full Next.js layout capabilities (metadata, fonts, etc.)
 
-#### **Advanced Feature API Patterns**
 
-**Nested Routes**:
-```typescript
-// Feature structure
-app/user-management/api/[id]/permissions/route.ts
-
-// Proxy structure
-app/api/user-management/[id]/permissions/route.ts
-export * from '@/user-management/api/[id]/permissions/route'
-```
-
-**Feature-Specific Middleware**:
-```typescript
-// app/user-management/api/middleware/validation.ts
-export const validateUserAccess = async (request: NextRequest) => {
-  const { user } = await authMiddleware(request)
-  
-  // Feature-specific validation logic
-  if (!user.user_metadata.can_manage_users) {
-    throw new Error('Insufficient permissions')
-  }
-  
-  return { user }
-}
-```
-
-**Business Logic Handlers**:
-```typescript
-// app/user-management/api/handlers/get-users.ts
-import { createApiResponse } from '@/api/(common)/handlers'
-
-export const getUsersHandler = async (request: NextRequest) => {
-  const { user } = await authMiddleware(request)
-  
-  const { searchParams } = new URL(request.url)
-  const page = parseInt(searchParams.get('page') || '1')
-  const limit = parseInt(searchParams.get('limit') || '10')
-  
-  const users = await getUsersPaginated({
-    organizationId: user.organization_id,
-    page,
-    limit,
-  })
-  
-  return createApiResponse(users)
-}
-```
-
-#### **When to Use Each Approach**
-
-**Use Server Actions (Primary)**:
-- Feature-specific data mutations
-- Form submissions
-- Internal business logic
-- User-initiated actions
-
-**Use Feature API Routes**:
-- External integrations specific to a feature
-- Feature-specific webhooks
-- Complex HTTP operations
-- Third-party service callbacks
-
-**Use Shared API Routes**:
-- Global authentication endpoints
-- Shared webhooks (Stripe, GitHub, etc.)
-- System-level operations
-- Cross-feature APIs
 
 ### Real-Time Data Patterns
 
@@ -1076,7 +796,7 @@ export function TaskList() {
 
 #### **Schema Organization**
 ```typescript
-// app/common/lib/schemas/
+// app/(common)/lib/schemas/
 export const userSchemas = {
   create: z.object({
     email: z.string().email(),
@@ -1116,7 +836,7 @@ export type BulkUpdateUsersInput = z.infer<typeof userSchemas.bulkUpdate>
 
 #### **Cache Key Strategy**
 ```typescript
-// app/common/lib/cache-keys.ts
+// app/(common)/lib/cache-keys.ts
 export const CacheKeys = {
   // User-specific cache (never shared)
   user: (userId: string) => `user:${userId}`,
@@ -1138,7 +858,7 @@ export const CacheKeys = {
 
 #### **Component Hierarchy**
 ```typescript
-// app/common/components/ui/
+// app/(common)/components/ui/
 // 1. Primitive Components (lowest level)
 export { Button } from './button'          // Interactive elements
 export { Input } from './input'            // Form inputs
@@ -1187,7 +907,7 @@ export { ChartContainer } from './chart-container'
 
 #### **Color System**
 ```css
-/* app/common/styles/globals.css */
+/* app/(common)/styles/globals.css */
 @theme {
   /* Primary brand colors */
   --color-primary-50: #eff6ff;
@@ -1219,7 +939,7 @@ export { ChartContainer } from './chart-container'
 
 #### **Component Variants**
 ```typescript
-// app/common/components/ui/button.tsx
+// app/(common)/components/ui/button.tsx
 const buttonVariants = cva(
   // Base styles
   "inline-flex items-center justify-center rounded-md text-sm font-medium",
@@ -1292,7 +1012,7 @@ export function ProgressBar({ progress }: { progress: number }) {
 
 #### **Error States**
 ```typescript
-// app/common/components/ui/error-boundary.tsx
+// app/(common)/components/ui/error-boundary.tsx
 export function ErrorBoundary({
   children,
   fallback,
@@ -1327,7 +1047,7 @@ export function ErrorBoundary({
 
 #### **Animation Utilities**
 ```css
-/* app/common/styles/globals.css */
+/* app/(common)/styles/globals.css */
 @layer utilities {
   .fade-in {
     animation: fadeIn 0.2s ease-in-out;
@@ -1374,75 +1094,6 @@ export function ErrorBoundary({
 
 ### Schema Design Principles
 
-#### **Naming Conventions**
-```sql
--- Tables: plural snake_case
-CREATE TABLE users (
-  -- Columns: snake_case
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Foreign keys: {table}_id
-CREATE TABLE posts (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  content TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Indexes: idx_{table}_{columns}
-CREATE INDEX idx_posts_user_id ON posts(user_id);
-CREATE INDEX idx_posts_created_at ON posts(created_at DESC);
-```
-
-#### **Table Design Patterns**
-
-**1. Audit Trail**
-```sql
-CREATE TABLE audit_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  table_name TEXT NOT NULL,
-  record_id UUID NOT NULL,
-  action TEXT NOT NULL, -- 'INSERT', 'UPDATE', 'DELETE'
-  old_values JSONB,
-  new_values JSONB,
-  user_id UUID REFERENCES users(id),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-**2. Soft Deletes**
-```sql
-CREATE TABLE posts (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  content TEXT,
-  deleted_at TIMESTAMPTZ, -- NULL means not deleted
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Query for non-deleted records
-SELECT * FROM posts WHERE deleted_at IS NULL;
-```
-
-**3. Polymorphic Relationships**
-```sql
-CREATE TABLE comments (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  content TEXT NOT NULL,
-  commentable_type TEXT NOT NULL, -- 'post', 'project', 'task'
-  commentable_id UUID NOT NULL,
-  user_id UUID REFERENCES users(id),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
 
 ### Row Level Security (RLS)
 
@@ -1571,60 +1222,10 @@ CREATE INDEX idx_published_posts ON posts(id) WHERE published = true;
 #### **Query Optimization Patterns**
 ```typescript
 // Use database functions for complex operations
-// app/common/lib/database-functions.ts
+// app/(common)/lib/database-functions.ts
 
-export const databaseFunctions = {
-  // Get user with their latest activity
-  getUserWithActivity: `
-    SELECT 
-      u.*,
-      (
-        SELECT json_agg(p.* ORDER BY p.created_at DESC LIMIT 5)
-        FROM posts p 
-        WHERE p.user_id = u.id 
-        AND p.deleted_at IS NULL
-      ) as recent_posts
-    FROM users u 
-    WHERE u.id = $1
-  `,
-  
-  // Get organization stats
-  getOrganizationStats: `
-    SELECT 
-      (SELECT COUNT(*) FROM users WHERE organization_id = $1 AND deleted_at IS NULL) as user_count,
-      (SELECT COUNT(*) FROM projects WHERE organization_id = $1 AND deleted_at IS NULL) as project_count,
-      (SELECT COUNT(*) FROM posts p 
-       JOIN projects pr ON p.project_id = pr.id 
-       WHERE pr.organization_id = $1 AND p.deleted_at IS NULL) as post_count
-  `,
-}
 ```
 
-### Backup & Recovery
-
-#### **Backup Strategy**
-```typescript
-// app/common/lib/backup.ts
-export const backupStrategy = {
-  // Daily automated backups
-  daily: {
-    retention: '30 days',
-    tables: ['users', 'posts', 'projects', 'comments'],
-  },
-  
-  // Weekly full backups
-  weekly: {
-    retention: '90 days',
-    includeAllTables: true,
-  },
-  
-  // Point-in-time recovery for critical data
-  pointInTime: {
-    tables: ['users', 'financial_transactions'],
-    frequency: 'hourly',
-    retention: '7 days',
-  },
-}
 ```
 
 ## 🔧 Configuration Files
@@ -1633,7 +1234,7 @@ export const backupStrategy = {
 Strict TypeScript setup with path aliases in `tsconfig.json`.
 
 ### Tailwind CSS v4
-CSS-based configuration in `app/common/styles/globals.css`.
+CSS-based configuration in `app/(common)/styles/globals.css`.
 
 ### ESLint
 Customized rules for consistent code quality.
