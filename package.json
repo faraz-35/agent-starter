@@ -8,10 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
-    "db:push": "supabase db push",
-    "db:diff": "supabase db diff",
-    "db:reset": "supabase db reset",
-    "db:generate-types": "supabase gen types typescript --local > app/common/types/supabase.ts"
+    "db:push": "pnpm supabase db push --project-id dupargbrwczchwdcuvug",
+    "db:diff": "pnpm supabase db diff --project-id dupargbrwczchwdcuvug",
+    "db:reset": "pnpm supabase db reset --project-id dupargbrwczchwdcuvug",
+    "db:generate-types": "pnpm supabase gen types typescript --project-id dupargbrwczchwdcuvug --schema public > app/common/types/supabase.ts"
   },
   "dependencies": {
     "react": "19.2.0",
