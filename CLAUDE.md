@@ -178,9 +178,10 @@ interface AuthState {
 ```
 
 ### Server State
-- Server Actions with `safe-action-client`
-- Type-safe error handling
+- Server Actions with enhanced `safe-action-client`
+- Type-safe error handling with `authActionClient`
 - Automatic validation with Zod schemas
+- React Query for client-side data fetching and caching
 
 ## 📝 Forms & Validation
 
@@ -205,14 +206,204 @@ export const loginSchema = z.object({
 ```
 
 ### Server Actions
-Safe actions in feature `actions/` directories:
+
+Enhanced safe actions with authentication support in feature `actions/` directories:
+
+#### Public Actions
+```typescript
+import { publicAction } from '@/common/lib/safe-action'
+
+export const publicAction = publicAction(mySchema, async (data) => {
+  // Public server-side logic with automatic validation
+})
+```
+
+#### Authenticated Actions
+```typescript
+import { authAction } from '@/common/lib/safe-action'
+
+export const authenticatedAction = authAction(mySchema, async (data, ctx) => {
+  const { supabase, authUser } = ctx
+  // Authenticated server-side logic - user is guaranteed to be logged in
+  // authUser contains the authenticated user object
+  // supabase is a server client with the user's session
+})
+```
+
+#### Action Usage Pattern
+- **`publicAction`**: For operations that don't require authentication
+- **`authAction`**: For operations that must be executed by logged-in users
+- **`action`**: Base safe action client for custom authentication logic
+
+## 📊 Data Fetching Patterns
+
+### Data Fetching Strategy
+
+We use a hybrid approach optimized for performance and user experience:
+
+#### **Server Components (Initial Load)**
+- **When to use**: Page initial loads, static data, SEO-critical content
+- **How**: Direct Supabase calls in Server Components
+- **Benefits**: No client-side JavaScript, faster initial paint, SEO friendly
 
 ```typescript
-import { action } from '@/common/lib/safe-action'
+// In a Server Component
+import { createSupabaseServerClient } from '@/common/lib/supabase-server'
 
-export const myAction = action(mySchema, async (data) => {
-  // Server-side logic with automatic validation
+export default async function DashboardPage() {
+  const supabase = createSupabaseServerClient()
+  const { data: user } = await supabase.from('profiles').select('*').single()
+  
+  return <DashboardComponent user={user} />
+}
+```
+
+#### **React Query (Client-Side)**
+- **When to use**: Real-time data, user interactions, cache management
+- **How**: `useQuery` hooks with authenticated query wrappers
+- **Benefits**: Automatic caching, background refetching, optimistic updates
+
+```typescript
+// In a Client Component
+import { useQuery } from '@tanstack/react-query'
+import { authQuery } from '@/common/hooks/auth-query'
+import { QueryKeys } from '@/common/lib/query-keys'
+
+export function useProfile() {
+  return useQuery({
+    queryKey: [QueryKeys.PROFILE],
+    queryFn: authQuery(async ({ supabase }) => {
+      const { data, error } = await supabase.from('profiles').select('*')
+      if (error) throw new Error(error.message)
+      return data
+    }),
+  })
+}
+```
+
+### Query Keys and Cache Management
+
+#### **Query Keys Pattern**
+Use centralized enum for consistent cache management:
+
+```typescript
+// app/common/lib/query-keys.ts
+export enum QueryKeys {
+  // User-related
+  PROFILE = 'profile',
+  USER_PREFERENCES = 'user-preferences',
+  
+  // Dashboard
+  DASHBOARD_STATS = 'dashboard-stats',
+  ANALYTICS = 'analytics',
+  
+  // Feature-specific
+  ITEMS = 'items',
+  ITEM_DETAIL = 'item-detail',
+}
+```
+
+#### **Key Construction**
+- **Simple queries**: `[QueryKeys.PROFILE]`
+- **Parameterized**: `[QueryKeys.ITEM_DETAIL, itemId]`
+- **Complex filters**: `[QueryKeys.ITEMS, { category, status }]`
+
+#### **Cache Invalidation**
+```typescript
+// In mutations
+queryClient.invalidateQueries({ queryKey: [QueryKeys.ITEMS] })
+
+// Precise invalidation
+queryClient.invalidateQueries({ 
+  queryKey: [QueryKeys.ITEM_DETAIL, itemId] 
 })
+```
+
+### Authenticated Query Hooks
+
+#### **authQuery Wrapper**
+Centralizes authentication and validation for client-side queries:
+
+```typescript
+// app/common/hooks/auth-query.ts
+export function authQuery<TParams, TResult>(
+  queryFn: (params: { supabase: SupabaseClient; user: User; params: TParams }) => Promise<TResult>,
+  options?: {
+    paramsSchema?: z.ZodSchema<TParams>
+    requiredRole?: string
+  }
+) {
+  return async (params: TParams) => {
+    const supabase = createSupabaseClient()
+    const { data: { user }, error } = await supabase.auth.getUser()
+    
+    if (error || !user) {
+      throw new Error('Unauthorized')
+    }
+    
+    // Optional role check
+    if (options?.requiredRole && user.user_metadata.role !== options.requiredRole) {
+      throw new Error('Insufficient permissions')
+    }
+    
+    // Optional input validation
+    if (options?.paramsSchema) {
+      const validatedParams = options.paramsSchema.parse(params)
+      return queryFn({ supabase, user, params: validatedParams })
+    }
+    
+    return queryFn({ supabase, user, params })
+  }
+}
+```
+
+### Data Mutations
+
+#### **Server Actions vs React Query**
+- **Server Actions**: Database writes, form submissions, file uploads
+- **React Query Mutations**: Complex operations, external API calls
+
+#### **Server Action Pattern**
+```typescript
+// In actions directory
+export const updateProfile = authAction(profileUpdateSchema, async (data, ctx) => {
+  const { supabase, authUser } = ctx
+  
+  const { error } = await supabase
+    .from('profiles')
+    .update(data)
+    .eq('id', authUser.id)
+    
+  if (error) throw new Error(error.message)
+  
+  return { success: true }
+})
+```
+
+#### **Client-Side Usage**
+```typescript
+// In component
+import { useAction } from 'next-safe-action/hooks'
+import { updateProfile } from './actions/update-profile'
+
+export function ProfileForm() {
+  const updateProfileAction = useAction(updateProfile, {
+    onSuccess: () => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.PROFILE] })
+      toast.success('Profile updated successfully')
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    }
+  })
+  
+  return (
+    <form onSubmit={form.handleSubmit(updateProfileAction.execute)}>
+      {/* Form fields */}
+    </form>
+  )
+}
 ```
 
 ## 🔐 Authentication
@@ -373,16 +564,6 @@ Database and authentication configuration via environment variables.
 - CORS configuration
 
 ## 🧪 Testing Strategy
-
-### Unit Testing
-- Component testing with React Testing Library
-- Hook testing utilities
-- Mock implementations
-
-### Integration Testing
-- API endpoint testing
-- Database operation testing
-- End-to-end workflow testing
 
 ### Type Safety
 - Compile-time error catching
