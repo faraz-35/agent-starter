@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/common/lib/supabase-server";
 import { authAction } from "@/common/lib/safe-action";
 import { z } from "zod";
 
