@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# repomix files
+repomix-*.xml
+*repomix*.xml
+repomix.temp.json
