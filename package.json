@@ -9,6 +9,9 @@
     "start": "next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
     "db:push": "pnpm supabase db push --project-id dupargbrwczchwdcuvug",
     "db:diff": "pnpm supabase db diff --project-id dupargbrwczchwdcuvug",
     "db:reset": "pnpm supabase db reset --project-id dupargbrwczchwdcuvug",
@@ -44,15 +47,21 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.3.3",
+    "@vitest/coverage-v8": "^2.1.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "16.0.2",
+    "jsdom": "^25.0.1",
     "postcss": "^8.5.1",
     "supabase": "^2.10.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.4"
   }
 }
