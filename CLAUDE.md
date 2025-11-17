@@ -367,6 +367,69 @@ vi.mock('@supabase/supabase-js', () => ({
 
 This approach ensures critical business logic is properly tested while avoiding over-testing simple components and utilities.
 
+## 🚨 Error Handling Standards
+
+### **Critical Rule**: Never lose error context. Always wrap errors, don't replace them.
+
+#### **Error Structure**
+```typescript
+// All errors must follow this structure:
+{
+  code: 'ERROR_TYPE',           // Machine-readable code
+  message: 'Human readable',    // User-friendly message
+  details: {},                  // Additional context
+  timestamp: 'ISO string',      // When error occurred
+  requestId: 'uuid',           // For tracing
+  retryable: boolean           // Can user retry?
+}
+```
+
+#### **Error Types**
+- **NetworkError**: API failures, timeouts (retryable)
+- **ValidationError**: Form validation (inline display)
+- **AuthorizationError**: Auth failures (modal + redirect)
+- **BusinessLogicError**: Domain violations (modal)
+- **DatabaseError**: Constraint violations (modal)
+- **ExternalServiceError**: Third-party APIs (retryable)
+- **SystemError**: Unexpected errors (modal)
+
+#### **Try/Catch Patterns**
+```typescript
+// ❌ WRONG: Loses error context
+try {
+  await someOperation()
+} catch (error) {
+  throw new Error('Something went wrong') // ❌ Lost original error!
+}
+
+// ✅ RIGHT: Preserve and enhance context
+try {
+  await someOperation()
+} catch (error) {
+  if (error instanceof AppError) {
+    throw error // Already structured
+  } else {
+    throw new SystemError('OPERATION_FAILED', error.message, {
+      originalError: error,
+      context: { action: 'someOperation' }
+    })
+  }
+}
+```
+
+#### **Layered Error Handling**
+1. **Server Actions**: Convert raw errors to structured errors
+2. **React Query**: Route to global error handler
+3. **Components**: Minimal catching, let error manager handle display
+
+#### **Error Display Routing**
+- **Validation Errors**: Inline form fields
+- **Auth Errors**: Modal + redirect to login
+- **Network Errors**: Toast + retry option
+- **Critical Errors**: Modal with recovery actions
+
+**Full documentation**: See `docs/error-conventions.md` for complete error handling patterns.
+
 ## 🛠️ Technology Stack
 
 ### Core Technologies
