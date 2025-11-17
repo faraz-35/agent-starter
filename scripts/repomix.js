@@ -3,7 +3,6 @@
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
-import { glob } from "glob";
 
 /**
  * Intelligent Repomix Script for Next.js Production Starter Template
