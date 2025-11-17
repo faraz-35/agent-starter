@@ -383,20 +383,20 @@ function listAvailableFeatures() {
   });
 
   if (featureNames.includes("dashboard")) {
-    console.log("  pnpm repomix dashboard");
-    console.log("  pnpm repomix dashboard/settings");
+    console.log("  pnpm code dashboard");
+    console.log("  pnpm code dashboard/settings");
   }
   if (featureNames.length > 0) {
     featureNames.forEach((name) => {
       if (name !== "dashboard") {
-        console.log(`  pnpm repomix ${name}`);
+        console.log(`  pnpm code ${name}`);
       }
     });
   }
 
   // Check if (home) exists and add it as example
   if (items.includes("(home)")) {
-    console.log("  pnpm repomix (home)");
+    console.log("  pnpm code home");
   }
 }
 
@@ -451,9 +451,9 @@ This script automatically finds all relevant files for a given feature based on
 the project's architecture principles with simple filtering options.
 
 Usage:
-  pnpm repomix <feature-name> [options]    Generate repomix for specific feature
-  pnpm repomix --list                      List all available features
-  pnpm repomix --help                      Show this help message
+  pnpm code <feature-name> [options]    Generate repomix for specific feature
+  pnpm code --list                      List all available features
+  pnpm code --help                      Show this help message
 
 Options:
   -eui                       Exclude app/(common)/components/ui folder
@@ -464,12 +464,12 @@ Options:
   --help, -h                  Show this help message
 
 Examples:
-  pnpm repomix dashboard                           # Full dashboard feature
-  pnpm repomix dashboard -eui                       # Exclude UI components
-  pnpm repomix dashboard -p1                        # Only 1 level of parent common
-  pnpm repomix dashboard -p-1                       # No top-level app/(common)
-  pnpm repomix dashboard -rc                        # No configuration files
-  pnpm repomix dashboard -eui -p1 -rc               # Multiple flags
+  pnpm code dashboard                           # Full dashboard feature
+  pnpm code dashboard -eui                       # Exclude UI components
+  pnpm code dashboard -p1                        # Only 1 level of parent common
+  pnpm code dashboard -p-1                       # No top-level app/(common)
+  pnpm code dashboard -rc                        # No configuration files
+  pnpm code dashboard -eui -p1 -rc               # Multiple flags
 `);
     return;
   }
@@ -482,11 +482,11 @@ Examples:
   if (!options.featureName) {
     console.error("❌ Please provide a feature name");
     console.log("\nUsage:");
-    console.log("  pnpm repomix <feature-name> [options]");
-    console.log("  pnpm repomix --help");
+    console.log("  pnpm code <feature-name> [options]");
+    console.log("  pnpm code --help");
     console.log("\nExamples:");
-    console.log("  pnpm repomix dashboard -eui");
-    console.log("  pnpm repomix dashboard -rc");
+    console.log("  pnpm code dashboard -eui");
+    console.log("  pnpm code dashboard -rc");
     process.exit(1);
   }
 
