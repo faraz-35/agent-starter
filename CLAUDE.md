@@ -638,6 +638,62 @@ import { formatDate } from '@/(common)/utils/helpers'
 import type { User } from '@/types/database'
 ```
 
+### 🚨 Global Paths Convention
+
+**Critical Rule**: Never hardcode paths anywhere in the codebase. Always use the global `paths` object.
+
+#### **Why This Matters**
+- **Type Safety**: Prevents typos and provides autocomplete
+- **Maintainability**: Single source of truth when routes change
+- **Refactoring Safety**: Routes update in one place only
+- **Nested Route Clarity**: Hierarchy is explicitly shown (e.g., `paths.dashboard.settings`)
+
+#### **Implementation**
+
+```typescript
+// app/(common)/lib/paths.ts
+export const paths = {
+  home: '/',
+  auth: {
+    login: '/auth/login',
+    register: '/auth/register',
+  },
+  dashboard: {
+    root: '/dashboard',
+    settings: '/dashboard/settings',
+  },
+  api: {
+    auth: '/api/auth',
+    dashboard: '/api/dashboard',
+  },
+} as const
+```
+
+#### **Usage Patterns**
+
+```typescript
+// Import paths
+import { paths } from '@/(common)/lib/paths'
+
+// In components
+<Link href={paths.dashboard.root}>Dashboard</Link>
+<Link href={paths.auth.login}>Login</Link>
+<Link href={paths.dashboard.settings}>Settings</Link>
+
+// In redirects
+router.push(paths.dashboard.settings)
+window.location.href = paths.auth.login
+
+// In API calls
+fetch(paths.api.dashboard, { method: 'POST' })
+```
+
+#### **Rules**
+1. **No hardcoded strings**: Never use `"/dashboard"` directly
+2. **Import paths**: Always `import { paths } from '@/(common)/lib/paths'`
+3. **Type safety**: The `as const` assertion provides complete TypeScript inference
+4. **Consistency**: Follow nested object structure matching your app directory
+
 ## 🚀 Getting Started
 
 ### Environment Setup

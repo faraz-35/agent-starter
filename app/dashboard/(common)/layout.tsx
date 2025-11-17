@@ -1,7 +1,9 @@
+import { paths } from "@/(common)/lib/paths";
+
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <div className="min-h-screen bg-gray-100">
@@ -12,16 +14,17 @@ export default function DashboardLayout({
               <h1 className="text-xl font-semibold">Dashboard</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <a href="/dashboard/settings" className="text-gray-600 hover:text-gray-900">
+              <a
+                href={paths.dashboard.settings}
+                className="text-gray-600 hover:text-gray-900"
+              >
                 Settings
               </a>
             </div>
           </div>
         </div>
       </nav>
-      <main className="container mx-auto px-4 py-8">
-        {children}
-      </main>
+      <main className="container mx-auto px-4 py-8">{children}</main>
     </div>
-  )
+  );
 }
