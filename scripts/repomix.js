@@ -15,29 +15,46 @@ import path from "path";
  * Example: node scripts/repomix.js auth
  */
 
-const CONFIG_FILE = "repomix.json";
 const APP_DIR = "app";
 
-// Load the base configuration
+// Internal configuration - no external repomix.json dependency
+const DEFAULT_CONFIG = {
+  exclude: [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/.vercel/**",
+    "**/.git/**",
+    "**/dist/**",
+    "**/build/**",
+    ".env*",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "**/*.map",
+    "**/*.min.js",
+  ],
+  intelligentRepomix: {
+    enabled: true,
+    description:
+      "Use the intelligent repomix script that auto-detects feature files based on the Next.js Production Starter Template architecture",
+    features: {
+      autoDetect: true,
+      includeParentCommon: true,
+      includeFeatureCommon: true,
+      includeApiRoutes: true,
+      includeConfigFiles: true,
+    },
+    output: {
+      style: "xml",
+      removeComments: false,
+      removeEmptyLines: true,
+      topFilesLength: 10,
+    },
+  },
+};
+
+// Load the base configuration (now using internal config)
 function loadConfig() {
-  if (fs.existsSync(CONFIG_FILE)) {
-    return JSON.parse(fs.readFileSync(CONFIG_FILE, "utf-8"));
-  }
-  return {
-    exclude: [
-      "**/node_modules/**",
-      "**/.next/**",
-      "**/.vercel/**",
-      "**/.git/**",
-      "**/dist/**",
-      "**/build/**",
-      ".env*",
-      "package-lock.json",
-      "pnpm-lock.yaml",
-      "**/*.map",
-      "**/*.min.js",
-    ],
-  };
+  return DEFAULT_CONFIG;
 }
 
 /**
