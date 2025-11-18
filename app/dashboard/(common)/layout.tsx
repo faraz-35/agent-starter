@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { paths } from "@/(common)/lib/paths";
 
 export default function DashboardLayout({
@@ -14,12 +15,12 @@ export default function DashboardLayout({
               <h1 className="text-xl font-semibold">Dashboard</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <a
+              <Link
                 href={paths.dashboard.settings}
                 className="text-gray-600 hover:text-gray-900"
               >
                 Settings
-              </a>
+              </Link>
             </div>
           </div>
         </div>

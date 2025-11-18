@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -21,17 +25,42 @@
       }
     ],
     "paths": {
-      "@/*": ["./app/*"],
-      "@/(common)/*": ["app/(common)/*"],
-      "@/auth/*": ["./app/auth/*"],
-      "@/dashboard/*": ["./app/dashboard/*"],
-      "@/components/*": ["app/(common)/components/*"],
-      "@/hooks/*": ["app/(common)/hooks/*"],
-      "@/lib/*": ["app/(common)/lib/*"],
-      "@/store/*": ["app/(common)/store/*"],
-      "@/styles/*": ["app/(common)/styles/*"],
-      "@/types/*": ["app/(common)/types/*"],
-      "@/utils/*": ["app/(common)/utils/*"]
+      "@/*": [
+        "./app/*"
+      ],
+      "@/(common)/*": [
+        "app/(common)/*"
+      ],
+      "@/auth/*": [
+        "./app/auth/*"
+      ],
+      "@/dashboard/*": [
+        "./app/dashboard/*"
+      ],
+      "@/components/*": [
+        "app/(common)/components/*"
+      ],
+      "@/hooks/*": [
+        "app/(common)/hooks/*"
+      ],
+      "@/lib/*": [
+        "app/(common)/lib/*"
+      ],
+      "@/store/*": [
+        "app/(common)/store/*"
+      ],
+      "@/styles/*": [
+        "app/(common)/styles/*"
+      ],
+      "@/types/*": [
+        "app/(common)/types/*"
+      ],
+      "@/utils/*": [
+        "app/(common)/utils/*"
+      ],
+      "@/common/*": [
+        "app/(common)/*"
+      ]
     },
     "baseUrl": "."
   },
@@ -43,5 +72,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

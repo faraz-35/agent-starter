@@ -101,79 +101,36 @@ AI agents can easily understand:
 │   │   └── layout.tsx             # Root layout implementation (exported to app/layout.tsx)
 │   │   
 │   ├── auth/                      # Multi-page authentication feature
-│   │   ├── (common)/                # Shared components ONLY when duplicated across login/register
-│   │   │   ├── components/        # Shared auth components (forms, fields, social login)
-│   │   │   ├── hooks/             # Shared auth hooks (form management, validation)
-│   │   │   ├── utils/             # Shared auth utilities (email, password validation)
+│   │   ├── (common)/              # Shared components ONLY when duplicated across login/register
+│   │   │   ├── components/        # Shared auth components
 │   │   │   └── layout.tsx         # Auth feature layout
-│   │   │   └── types.ts           # Auth-specific shared types
 │   │   ├── login/                 # Login sub-feature (unique business logic)
 │   │   │   ├── page.tsx           # /auth/login
-│   │   │   ├── components/        # Login-specific components (with shared auth/common imports)
-│   │   │   │   ├── login-form.tsx # Login form (uses shared components + unique logic)
-│   │   │   │   └── index.ts       # Component exports
-│   │   │   ├── hooks/             # Login-specific hooks
-│   │   │   │   ├── use-login.tsx  # Login authentication logic
-│   │   │   │   └── index.ts       # Hook exports
-│   │   │   ├── actions/           # Login-specific server actions
-│   │   │   │   └── index.ts       # Login actions
-│   │   │   ├── types/             # Login-specific types
-│   │   │   │   └── index.ts       # Login types
-│   │   │   ├── constants/         # Login-specific constants
-│   │   │   │   └── index.ts       # Login constants
-│   │   │   └── utils/             # Login-specific utilities (minimal)
-│   │   │       └── index.ts       # Login utilities
-│   │   │       
-│   │   └── register/              # Register sub-feature (unique business logic)
-│   │   │   ├── page.tsx           # /auth/register
-│   │   │   ├── components/        # Register-specific components (with shared auth/common imports)
-│   │   │   │   ├── register-form.tsx # Registration form (uses shared components + unique logic)
-│   │   │   │   └── index.ts       # Component exports
-│   │   │   ├── hooks/             # Register-specific hooks
-│   │   │   │   ├── use-register.tsx # Registration logic
-│   │   │   │   └── index.ts       # Hook exports
-│   │   │   ├── actions/           # Register-specific server actions
-│   │   │   │   └── index.ts       # Registration actions
-│   │   │   ├── types/             # Register-specific types
-│   │   │   │   └── index.ts       # Registration types
-│   │   │   ├── constants/         # Register-specific constants
-│   │   │   │   └── index.ts       # Registration constants
-│   │   │   └── utils/             # Register-specific utilities (minimal)
-│   │   │       └── index.ts       # Registration utilities  │   │       
-│   │   └── api/                   # Auth feature API routes (100% self-contained)
-│   │       ├── route.ts           # Main auth API logic
-│   │       ├── middleware/        # Auth API middleware
-│   │       ├── handlers/          # Auth API business logic
-│   │       └── types.ts           # Auth API types
+│   │   │   └── components/        # Login-specific components
+│   │   └── register/              # Register sub-feature
+│   │       ├── page.tsx           # /auth/register
+│   │       └── components/        # Register-specific components
 │   │       
-│   ├── dashboard/                 # Multi-page dashboard feature (100% self-contained)
-│   │   ├── (common)/              # MINIMAL shared components WITHIN dashboard only
-│   │   │   ├── layout.tsx         # Dashboard layout ONLY
-│   │   │   ├── components/        # Dashboard shared components ONLY
-│   │   │   │   ├── navigation.tsx # Dashboard navigation
-│   │   │   │   └── sidebar.tsx   # Dashboard sidebar
-│   │   │   ├── hooks/             # Dashboard shared hooks ONLY
-│   │   │   │   ├── use-dashboard-layout.tsx # Layout logic
-│   │   │   │   └── index.ts       # Hook exports
-│   │   │   └── types/             # Dashboard shared types ONLY
-│   │   │       └── index.ts       # Type exports
-│   │   │       
-│   │   ├── (root)/                # Route group - no URL segment
-│   │   │   └── page.tsx           # /dashboard (main page)
-│   │   ├── settings/              # Settings sub-feature (100% self-contained)
-│   │   │   ├── page.tsx           # /dashboard/settings
-│   │   │   ├── components/        # ALL settings-specific components
-│   │   │   ├── hooks/             # ALL settings-specific hooks
-│   │   │   ├── actions/           # ALL settings-specific server actions
-│   │   │   ├── types/             # ALL settings-specific types
-│   │   │   └── api/               # Settings API routes
-│   │   │       └── route.ts       # Settings API logic (to be imported by /app/api/settings)
+│   ├── dashboard/                 # Feature with nested sub-features -> NEEDS (root)
+│   │   ├── (common)/              # Shared components WITHIN dashboard only
+│   │   ├── (root)/                # Main dashboard view (isolated from container)
+│   │   │   ├── page.tsx           # /dashboard (main page)
+│   │   │   ├── components/        # Components specific to the main dashboard view
+│   │   │   └── api/               # API specific to the main dashboard view
+│   │   └── settings/              # Settings sub-feature
+│   │       ├── page.tsx           # /dashboard/settings
+│   │       └── components/        # Settings-specific components
+│   │       
+│   ├── simple-feature/            # Single-page feature -> NO (root) needed
+│   │   ├── page.tsx               # /simple-feature
+│   │   ├── components/            # Feature components
+│   │   └── api/                   # Feature API
 │   │       
 │   └── api/                       # API proxy routes (MINIMAL - just import/export)
 │       ├── auth/
 │       │   └── route.ts           // export * from '@/auth/api/route'
 │       └── dashboard/
-│           └── route.ts           // export * from '@/dashboard/api/route'
+│           └── route.ts           // export * from '@/dashboard/(root)/api/route'
 │           
 ├── layout.tsx                     # Root layout proxy (exports from @/(common)/layout)
 └── public/                        # Static assets
@@ -181,16 +138,19 @@ AI agents can easily understand:
 
 ### 🎯 Adaptive Self-Containment Rules
 
-**1. Build with Self-Containment First**
+**1. The `(root)` Directory Pattern**
+- **Use `(root)` ONLY when a feature has nested sub-features** (e.g., `dashboard/settings`).
+- **Why?** It separates the "main view" logic from the "feature container" logic.
+- **If a feature is single-page**, put `page.tsx` directly in the feature folder.
+
+**2. Build with Self-Containment First**
 - Start each feature completely self-contained
 - Keep all business logic within feature directories
 - Don't pre-emptively create shared components
 
-**2. Extract Only When Duplication Occurs**
+**3. Extract Only When Duplication Occurs**
 - Move ACTUALLY duplicated code to `feature/(common)/` directories
 - Keep unique business logic within sub-feature directories
-
-
 
 
 ### 🎯 Real-World Examples
