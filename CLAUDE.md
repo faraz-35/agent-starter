@@ -1481,30 +1481,12 @@ DROP TABLE IF EXISTS audit_logs;
 ```
 
 ### Database Performance
+- Create indexes on columns used in WHERE clauses
+- Create indexes on columns used in JOIN clauses
+- Create indexes on columns used in ORDER BY clauses
+- Create indexes on columns used in GROUP BY clauses
 
-#### **Indexing Strategy**
-```sql
--- 1. Primary keys (automatic)
--- 2. Foreign keys
-CREATE INDEX idx_posts_user_id ON posts(user_id);
-
--- 3. Columns used in WHERE clauses
-CREATE INDEX idx_posts_status ON posts(status);
-CREATE INDEX idx_posts_created_at ON posts(created_at DESC);
-
--- 4. Composite indexes for complex queries
-CREATE INDEX idx_posts_user_status ON posts(user_id, status);
-CREATE INDEX idx_posts_status_created_at ON posts(status, created_at DESC);
-
--- 5. Partial indexes for specific conditions
-CREATE INDEX idx_active_users ON users(id) WHERE status = 'active';
-CREATE INDEX idx_published_posts ON posts(id) WHERE published = true;
-```
-
-#### **Query Optimization Patterns**
-```typescript
-// Use database functions for complex operations
-// app/(common)/lib/database-functions.ts
+- Use RPC functions and views where relevant
 
 ```
 
