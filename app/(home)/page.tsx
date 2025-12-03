@@ -14,16 +14,6 @@ export default function HomePage() {
             A production-ready template with AI agent-first architecture,
             featuring modern tools and best practices.
           </p>
-          <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-            <div className="rounded-md shadow">
-              <Link
-                href={paths.auth.login}
-                className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
         </div>
 
         <div className="mt-16">
